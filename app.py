@@ -30,14 +30,14 @@ class userCreds(db.Model):
         return f"userCreds('{self.username}','{self.password}','{self.twoFactor}')"
 
 
-class loginHistory(db.Model):
-    uid = db.Column(db.Integer(), unique=False, primary_key=True, nullable=False)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    loginTimes = db.Column(db.DateTime)
-    logoutTimes = db.Column(db.DateTime)
-
-    def __repr__(self):
-        return f"loginHistory('{self.username}','{self.loginTimes}','{self.logoutTimes}')"
+# class loginHistory(db.Model):
+#     uid = db.Column(db.Integer(), unique=False, primary_key=True, nullable=False)
+#     username = db.Column(db.String(20), unique=True, nullable=False)
+#     loginTimes = db.Column(db.DateTime)
+#     logoutTimes = db.Column(db.DateTime)
+#
+#     def __repr__(self):
+#         return f"loginHistory('{self.username}','{self.loginTimes}','{self.logoutTimes}')"
 
 db.drop_all()
 db.create_all()
@@ -107,14 +107,14 @@ def login():
             userlogin = userCreds.query.filter_by(uname=('%s' % uname)).first()
             if uname == userlogin.uname and bcrypt.check_password_hash(userlogin.pword, pword) and twofa == userlogin.twofa:
                 session['bool_log'] = True
-                if loginHistory.query.first() is None:  # If no user history in table
-                    uID = 0
-                else:
-                    check_loginhistory = loginHistory.query.first()
-                    uID = check_loginhistory.uid + 1
-                add_newlogin = loginHistory(uid=uID, username=uname, loginTimes=datetime.now())
-                db.session.add(add_newlogin)
-                db.session.commit()
+                # if loginHistory.query.first() is None:  # If no user history in table
+                #     uID = 0
+                # else:
+                #     check_loginhistory = loginHistory.query.first()
+                #     uID = check_loginhistory.uid + 1
+                # add_newlogin = loginHistory(uid=uID, username=uname, loginTimes=datetime.now())
+                # db.session.add(add_newlogin)
+                # db.session.commit()
                 message = "success"
                 return render_template('login.html', form=form, message=message)
             else:
@@ -136,6 +136,7 @@ def login():
 @app.route('/spellcheck', methods=['GET', 'POST'])
 def spellcheck():
     form = spellForm(request.form)
+    message = ""
     if session.get('bool_log') and request.method == 'GET':
         message = 'inputtext'
         return render_template('spellcheck.html', form=form, message=message)
@@ -151,9 +152,11 @@ def spellcheck():
             popen.wait()
             output = popen.stdout.read()
             output = output.decode().replace("\n", ",")
+            message = "success"
         except subprocess.CalledProcessError as e:
             print("Error :", e)
-        return render_template('spellcheck_results.html', misspelled=output)
+            message = "failure"
+        return render_template('spellcheck_results.html', misspelled=output, message=message)
 
     if not session.get('bool_log'):
         message = 'Please log in first!'

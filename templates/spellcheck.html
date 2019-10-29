@@ -18,7 +18,7 @@
 </div>
 <form action="" method="post" align="center" id="inputtext">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-      {{form.textbox}}
+    <div id="inputtext">{{form.textbox}}</div>
       <div id=result>{{message}}</div>
     <p align="center"><input type=submit name='submit_button' value='Count Misspelled Words'></p>
 
