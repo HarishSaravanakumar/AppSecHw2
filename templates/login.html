@@ -17,7 +17,7 @@
 <a href="http://localhost:5000/spellcheck">SPELL CHECK</a>
         </strong>
     </div>
-<form method=post align="center">
+<form method=post align="center" novalidate>
     <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
     {{render_field(form.uname)}}
     {{render_field(form.pword)}}

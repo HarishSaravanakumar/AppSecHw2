@@ -31,8 +31,8 @@ class userCreds(db.Model):
 
 
 class loginHistory(db.Model):
-    uid = db.Column(db.Integer(), unique=True, nullable=False, primary_key=True)
-    username = db.Column(db.String(20), unique=False, nullable=False)
+    uid = db.Column(db.Integer(), unique=False, primary_key=True, nullable=False)
+    username = db.Column(db.String(20), unique=True, nullable=False)
     loginTimes = db.Column(db.DateTime)
     logoutTimes = db.Column(db.DateTime)
 

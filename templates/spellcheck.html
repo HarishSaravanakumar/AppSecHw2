@@ -16,7 +16,7 @@
     <a href="http://localhost:5000/spellcheck"><font color="red">SPELL CHECK</font></a>
     </strong>
 </div>
-<form method=POST align="center" id="inputtext">
+<form action="" method="post" align="center" id="inputtext">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       {{form.textbox}}
       <div id=result>{{message}}</div>
