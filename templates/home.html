@@ -19,10 +19,11 @@
         </strong>
     </div>
 <form method=post align="center">
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
     <br>
     <div id=result>{{message}}</div>
     <p><input type=submit name='button_click' value='Logout'>
-    <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
+
 </form>
 </div>
 

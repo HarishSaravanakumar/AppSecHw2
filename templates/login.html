@@ -18,12 +18,12 @@
         </strong>
     </div>
 <form method=post align="center">
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
     {{render_field(form.uname)}}
     {{render_field(form.pword)}}
     {{render_field(form.twofa)}}
 	{{id}}
       <div id=result>{{message}}</div>
   <p align="center"><input type=submit value=Login>
-    <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
 </form>
 </div>

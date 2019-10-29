@@ -18,6 +18,7 @@
         </strong>
 </div>
 <form method=POST align="center">
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
   <dl>
     {{render_field(form.uname)}}
     {{render_field(form.pword)}}
@@ -25,6 +26,6 @@
     <div id=failure>{{message}}</div>
   </dl>
   <p><input type=submit value=Register>
-    <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
+
 </form>
 </div>
