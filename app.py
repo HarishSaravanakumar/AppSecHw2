@@ -134,11 +134,11 @@ def login():
 
 # Text Submission && Result Retrieval 
 @app.route('/spellcheck', methods=['GET', 'POST'])
-def spell_check():
+def spellcheck():
     form = spellForm(request.form)
     if session.get('bool_log') and request.method == 'GET':
         message = 'inputtext'
-        return render_template('spell_check.html', form=form, message=message)
+        return render_template('spellcheck.html', form=form, message=message)
 
     if session.get('bool_log') and request.method == 'POST' and request.form['submit_button'] == 'Count Misspelled Words':
         data = form.textbox.data
@@ -153,14 +153,14 @@ def spell_check():
             output = output.decode().replace("\n", ",")
         except subprocess.CalledProcessError as e:
             print("Error :", e)
-        return render_template('spell_check_results.html', misspelled=output)
+        return render_template('spellcheck_results.html', misspelled=output)
 
     if not session.get('bool_log'):
         message = 'Please log in first!'
-        return render_template('spell_check.html', form=form, message=message)
+        return render_template('spellcheck.html', form=form, message=message)
     else:
         message = 'Extraneous Error'
-        return render_template('spell_check.html', form=form, message=message)
+        return render_template('spellcheck.html', form=form, message=message)
 
 
 if __name__ == '__main__':
