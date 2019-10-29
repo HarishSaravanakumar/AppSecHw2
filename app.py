@@ -87,7 +87,7 @@ def register():
             if uname == uname_check:
                 # print('Username already exists; select a different username')
                 message = "failure"
-                return render_template('register.html', form=form, message=message)
+                return render_template('register_failure.html', form=form, message=message)
     else:
         message = ''
         return render_template('register.html', form=form, message=message)
