@@ -19,13 +19,11 @@
 </div>
 <form method=POST align="center">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-  <dl>
     {{render_field(form.uname)}}
     {{render_field(form.pword)}}
     {{render_field(form.twofa)}}
-    <div id=success>{{message}}</div>
-  </dl>
   <p><input type=submit value=Register>
-
 </form>
+<p id="success">{{message}}</p>
 </div>
+</body>

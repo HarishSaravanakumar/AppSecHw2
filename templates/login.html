@@ -18,7 +18,7 @@
         </strong>
     </div>
 <form method=post align="center" novalidate>
-    <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     {{render_field(form.uname)}}
     {{render_field(form.pword)}}
     {{render_field(form.twofa)}}

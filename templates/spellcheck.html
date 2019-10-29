@@ -16,11 +16,10 @@
     <a href="http://localhost:5000/spellcheck"><font color="red">SPELL CHECK</font></a>
     </strong>
 </div>
-<form action="" method="post" align="center" id="inputtext">
+<form action="" method="post" align="center">
+    {{form.textbox}}
+    <div id=result>{{message}}</div>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <div id="inputtext">{{form.textbox}}</div>
-      <div id=result>{{message}}</div>
-    <p align="center"><input type=submit name='submit_button' value='Count Misspelled Words'></p>
-
+    <p align="center"><input type=submit name='submit_button' value='Check Spelling'></p>
 </form>
 </div>

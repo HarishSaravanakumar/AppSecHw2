@@ -8,12 +8,14 @@ import subprocess
 import os
 from datetime import *
 from flask_sqlalchemy import SQLAlchemy
-
+csrf = CSRFProtect()
 app = Flask(__name__)
+
 app.secret_key = os.urandom(50)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
-csrf = CSRFProtect()
+
 csrf.init_app(app)
 bcrypt = Bcrypt(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -45,8 +47,8 @@ db.create_all()
 
 # Define Forms
 class registerForm(Form):
-    uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=6, max=20)])
-    pword = PasswordField('Password', [validators.DataRequired(message="Enter Password"), validators.Length(min=6, max=20)])
+    uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=6, max=20)], id="uname")
+    pword = PasswordField('Password', [validators.DataRequired(message="Enter Password"), validators.Length(min=6, max=20)], id="pword")
     twofa = StringField('2FA', [validators.DataRequired(message="Enter a 11 digit phone number"), validators.Length(min=11, max=11, message="Please enter phone number with your area code.")], id='2fa')
 
 
@@ -87,7 +89,7 @@ def register():
             if uname == uname_check:
                 # print('Username already exists; select a different username')
                 message = "failure"
-                return render_template('register_failure.html', form=form, message=message)
+                return render_template('register.html', form=form, message=message)
     else:
         message = ''
         return render_template('register.html', form=form, message=message)
@@ -141,7 +143,7 @@ def spellcheck():
         message = 'inputtext'
         return render_template('spellcheck.html', form=form, message=message)
 
-    if session.get('bool_log') and request.method == 'POST' and request.form['submit_button'] == 'Count Misspelled Words':
+    if session.get('bool_log') and request.method == 'POST' and request.form['submit_button'] == 'Check':
         data = form.textbox.data
         test_wordlist = open("temp.txt", "w")
         test_wordlist.write(data)
@@ -156,7 +158,7 @@ def spellcheck():
         except subprocess.CalledProcessError as e:
             print("Error :", e)
             message = "failure"
-        return render_template('spellcheck_results.html', misspelled=output, message=message)
+        return render_template('spellcheck_results.html', data=data, misspelled=output)
 
     if not session.get('bool_log'):
         message = 'Please log in first!'
