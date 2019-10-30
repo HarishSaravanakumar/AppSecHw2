@@ -14,11 +14,6 @@ WORDLIST = "wordlist.txt"
 
 
 class TestSpellCheckApp(unittest.TestCase):
-    def test_register(client, app):
-        assert client.get('/register').status_code == 200
-        response = client.post(
-            '/register', data={'uname': 'a', 'pword': 'a', '2fa': '123456'}
-        )
     def testHome(self):  # check Home endpoint for OK status
         assert (requests.get("http://localhost:5000/").status_code == 200)
     def testRegister(self):
@@ -27,7 +22,6 @@ class TestSpellCheckApp(unittest.TestCase):
         assert (requests.get("http://localhost:5000/login").status_code == 200)
     def testSpellCheck(self):
         assert (requests.get("http://localhost:5000/spell_check").status_code == 200)
-
 
 
 if __name__=='__main__':
