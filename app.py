@@ -17,7 +17,7 @@ login_manager.init_app(app)
 
 csrf.init_app(app)
 bcrypt = Bcrypt(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///spellcheckapp.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -30,15 +30,6 @@ class userCreds(db.Model):
     def __repr__(self):
         return f"userCreds('{self.username}','{self.password}','{self.twoFactor}')"
 
-
-# class loginHistory(db.Model):
-#     uid = db.Column(db.Integer(), unique=False, primary_key=True, nullable=False)
-#     username = db.Column(db.String(20), unique=True, nullable=False)
-#     loginTimes = db.Column(db.DateTime)
-#     logoutTimes = db.Column(db.DateTime)
-#
-#     def __repr__(self):
-#         return f"loginHistory('{self.username}','{self.loginTimes}','{self.logoutTimes}')"
 
 db.drop_all()
 db.create_all()
@@ -110,7 +101,7 @@ def login():
                 message = "success"
                 return render_template('login.html', form=form, message=message)
             else:
-                if pword != userlogin.pword:
+                if bcrypt.check_password_hash(userlogin.pword, pword) == False:
                     message = 'Incorrect'
                     return render_template('login.html', form=form, message=message)
                 if twofa != userlogin.twofa:
