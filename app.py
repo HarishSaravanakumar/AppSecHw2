@@ -7,6 +7,10 @@ from flask_login import LoginManager
 import subprocess
 import os
 from flask_sqlalchemy import SQLAlchemy
+# Harish Saravanakumar
+# hs3209
+# Application Security Assignment 2
+
 csrf = CSRFProtect()
 app = Flask(__name__)
 
