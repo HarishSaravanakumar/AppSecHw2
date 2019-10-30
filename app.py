@@ -134,7 +134,7 @@ def login():
         return render_template('login.html', form=form, message=message)
 
 # Text Submission && Result Retrieval 
-@app.route('/spellcheck', methods=['GET', 'POST'])
+@app.route('/spell_check', methods=['GET', 'POST'])
 def spellcheck():
     form = spellForm(request.form)
     message = ""
