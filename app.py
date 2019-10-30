@@ -134,6 +134,7 @@ def spellcheck():
             popen.wait()
             output = popen.stdout.read()
             output = output.decode().replace("\n", ",")
+            popen.terminate()
             message = "success"
         except subprocess.CalledProcessError as e:
             print("Error:", e)
