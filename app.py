@@ -86,7 +86,6 @@ def register():
         else:
             uname_check = userCreds.query.filter_by(uname=('%s' % uname)).first().uname
             if uname == uname_check:
-                # print('Username already exists; select a different username')
                 message = "failure"
                 return render_template('register.html', form=form, message=message)
     else:
@@ -101,28 +100,20 @@ def login():
         uname = form.uname.data
         pword = form.pword.data
         twofa = form.twofa.data
-        if userCreds.query.filter_by(uname=('%s' % uname)).first() is None:
+        userlogin = userCreds.query.filter_by(uname=('%s' % uname)).first()
+        if userlogin is None:
             message = 'Incorrect'
             return render_template('login.html', form=form, message=message)
         else:
-            userlogin = userCreds.query.filter_by(uname=('%s' % uname)).first()
             if uname == userlogin.uname and bcrypt.check_password_hash(userlogin.pword, pword) and twofa == userlogin.twofa:
                 session['bool_log'] = True
-                # if loginHistory.query.first() is None:  # If no user history in table
-                #     uID = 0
-                # else:
-                #     check_loginhistory = loginHistory.query.first()
-                #     uID = check_loginhistory.uid + 1
-                # add_newlogin = loginHistory(uid=uID, username=uname, loginTimes=datetime.now())
-                # db.session.add(add_newlogin)
-                # db.session.commit()
                 message = "success"
                 return render_template('login.html', form=form, message=message)
             else:
-                if pword != userlogin.password:
+                if pword != userlogin.pword:
                     message = 'Incorrect'
                     return render_template('login.html', form=form, message=message)
-                if twofa != userlogin.twoFactor:
+                if twofa != userlogin.twofa:
                     message = 'Two-factor failure'
                     return render_template('login.html', form=form, message=message)
 
@@ -158,7 +149,6 @@ def spellcheck():
             print("Error :", e)
             message = "failure"
         return render_template('spellcheck_results.html', data=data, misspelled=output)
-
     if not session.get('bool_log'):
         message = 'Please log in first!'
         return render_template('spellcheck.html', form=form, message=message)
