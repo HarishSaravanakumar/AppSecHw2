@@ -35,7 +35,6 @@ db.drop_all()
 db.create_all()
 
 
-# Define Forms
 class registerForm(Form):
     uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=6, max=20)])
     pword = PasswordField('Password', [validators.DataRequired(message="Enter Password"), validators.Length(min=6, max=20)])
@@ -60,7 +59,7 @@ def home():
         message = 'Please Login'
         return render_template('home.html', message=message)
 
-# Form for register
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = registerForm(request.form)
@@ -83,7 +82,7 @@ def register():
         message = ''
         return render_template('register.html', form=form, message=message)
 
-# Form for login
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = registerForm(request.form)
@@ -111,11 +110,11 @@ def login():
     if request.method == 'POST' and form.validate() and session.get('bool_log'):
         message = 'Already logged in'
         return render_template('login.html', form=form, message=message)
-    else:
+    else:  # request.method == GET
         message = ''
         return render_template('login.html', form=form, message=message)
 
-# Text Submission && Result Retrieval 
+
 @app.route('/spell_check', methods=['GET', 'POST'])
 def spellcheck():
     form = spellForm(request.form)
@@ -137,7 +136,7 @@ def spellcheck():
             output = output.decode().replace("\n", ",")
             message = "success"
         except subprocess.CalledProcessError as e:
-            print("Error :", e)
+            print("Error:", e)
             message = "failure"
         return render_template('spellcheck_results.html', data=data, misspelled=output)
     if not session.get('bool_log'):
