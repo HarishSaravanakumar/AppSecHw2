@@ -6,7 +6,6 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 import subprocess
 import os
-from datetime import *
 from flask_sqlalchemy import SQLAlchemy
 csrf = CSRFProtect()
 app = Flask(__name__)
@@ -47,8 +46,8 @@ db.create_all()
 
 # Define Forms
 class registerForm(Form):
-    uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=6, max=20)], id="uname")
-    pword = PasswordField('Password', [validators.DataRequired(message="Enter Password"), validators.Length(min=6, max=20)], id="pword")
+    uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=6, max=20)])
+    pword = PasswordField('Password', [validators.DataRequired(message="Enter Password"), validators.Length(min=6, max=20)])
     twofa = StringField('2FA', [validators.DataRequired(message="Enter a 11 digit phone number"), validators.Length(min=11, max=11, message="Please enter phone number with your area code.")], id='2fa')
 
 

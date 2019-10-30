@@ -5,3 +5,4 @@ WTForms==2.2.1
 Flask-Bcrypt==0.7.1
 Flask-SQLAlchemy==2.4.0
 Flask-RESTful==0.3.7
+Flask-Session==0.3.1
