@@ -80,9 +80,9 @@ def user_loader(user_id):
 
 
 class registerForm(Form):
-    uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=5, max=20)])
+    uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=5, max=25)])
     pword = PasswordField('Password', [validators.DataRequired(message="Enter Password"), validators.Length(min=6, max=20)])
-    twofa = StringField('2FA', [validators.DataRequired(message="Enter a 11 digit phone number"), validators.Length(min=11, max=11, message="Please enter phone number with your area code.")], id='2fa')
+    twofa = StringField('2FA', [validators.DataRequired(message="Enter a 11 digit phone number"), validators.Length(min=10, max=11, message="Please enter phone number with your area code.")], id='2fa')
 
 
 class spellForm(Form):
@@ -90,7 +90,7 @@ class spellForm(Form):
 
 
 class userCheckForm(Form):
-    textbox = TextAreaField('textbox', [validators.DataRequired(message="Enter User To Check Audit History"),validators.Length(max=20)], id='inputtext')
+    textbox = TextAreaField('textbox', [validators.DataRequired(message="Enter User To Check"),validators.Length(max=20)], id='inputtext')
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -223,7 +223,7 @@ def history():
                     allqueries = ''
                 return render_template('history.html', numqueries=queriesCount, allqueries=allqueries, form=form)
         except AttributeError:
-            return render_template('unauthorized.html')
+            return render_template('error.html')
     if session.get('bool_log') and request.method =='GET':
         try:
             numqueries = userSpellHistory.query.filter_by(uname=('%s' % current_user.uname)).order_by(userSpellHistory.queryID.desc()).first()
@@ -234,7 +234,7 @@ def history():
             allqueries = ''
         return render_template('history.html', numqueries=queriesCount,allqueries=allqueries,form=form)
     else:
-        return render_template('unauthorized.html')
+        return render_template('error.html')
 
 
 @app.route("/history/<query>")
@@ -248,7 +248,7 @@ def queryPage(query):
             submitText = history.queryText
             returnedText = history.queryResults
         except AttributeError:
-            return render_template('unauthorized.html')
+            return render_template('error.html')
         return render_template('queryIDresults.html', queryID=queryID, uname=uname,submitText=submitText,results=returnedText)
 
 
@@ -257,20 +257,17 @@ def login_history():
     form = userCheckForm(request.form)
     dbUserCheck = userCreds.query.filter_by(uname=('%s' % current_user.uname)).first()
     if session.get('bool_log') and request.method == 'GET' and dbUserCheck.level == 'admin':
-        # print("GET")
         message = 'Authenticated User'
         return render_template('login_history.html', form=form, message=message)
 
     if session.get('bool_log') and request.method == 'POST' and request.form['submit_button'] == 'Check User Login History':
         if dbUserCheck.level == 'admin':
-            # print("POST")
             userToQuery = (form.textbox.data)
             queryResults = userHistory.query.filter_by(uname=('%s' % userToQuery)).all()
             return render_template('login_history_results.html', misspelled=queryResults)
-            # return render_template('unauthorized.html')
     else:
         message = 'Unauthorized: Admin Status Required'
-        return render_template('unauthorized.html', form=form, message=message)
+        return render_template('login_history.html', form=form, message=message)
 
 
 if __name__ == '__main__':
