@@ -3,14 +3,14 @@ from flask import Flask, request, render_template, session
 from wtforms import Form, StringField, PasswordField, validators, TextAreaField
 from flask_wtf import CSRFProtect
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin, login_user, current_user
 import subprocess
 import os
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 # Harish Saravanakumar
 # hs3209
 # Application Security Assignment 2
-
 csrf = CSRFProtect()
 app = Flask(__name__)
 
@@ -26,21 +26,61 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-class userCreds(db.Model):
-    uname = db.Column(db.String(20), unique=True, primary_key=True, nullable=False)
-    pword = db.Column(db.String(50), nullable=False)
+class userCreds(db.Model, UserMixin):
+    user_id = db.Column(db.Integer(), unique=True, nullable=False, primary_key=True)
+    uname = db.Column(db.String(20), unique=True, nullable=False)
+    pword = db.Column(db.String(70), nullable=False)
     twofa = db.Column(db.String(11), nullable=False)
+    reg_time = db.Column('register Time', db.DateTime)
+    level = db.Column(db.String(100))
 
     def __repr__(self):
-        return f"userCreds('{self.username}','{self.password}','{self.twoFactor}')"
+        return f"userCreds('{self.user_id}', '{self.uname}','{self.password}','{self.twofa}', '{self.reg_time}', '{self.level}')"
+
+    def get_id(self):
+        return self.user_id
+
+    def get_active(self):
+        return True
+
+
+class userHistory(db.Model):
+    login_id = db.Column(db.Integer(), unique=True, nullable=False, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey("user_creds.user_id"), unique=False)
+    uname = db.Column(db.String(20), unique=False, nullable=False)
+    userAction = db.Column(db.String(20))
+    userLoggedIn = db.Column(db.DateTime)
+    userLoggedOut = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return f"userHistory('{self.login_id}','{self.user_id}','{self.uname}', '{self.userAction}','{self.userLoggedIn}','{self.userLoggedOut}')"
+
+class userSpellHistory(db.Model):
+    queryID = db.Column(db.Integer(),unique=True,nullable=False,primary_key=True,autoincrement=True)
+    uname = db.Column(db.String(20), unique=False,nullable=False)
+    queryText = db.Column(db.String(20000), unique=False,nullable=False)
+    queryResults = db.Column(db.String(20000), unique=False,nullable=False)
+
+    def __repr__(self):
+        return f"userSpellHistory('{self.queryID}','{self.uname}','{self.queryText}','{self.queryResults}')"
 
 
 db.drop_all()
 db.create_all()
+#
+# Add in the Administrator User
+adminToAdd = userCreds(uname='admin', pword=bcrypt.generate_password_hash('Administrator@1').decode('utf-8'), twofa='12345678901', level='admin')
+db.session.add(adminToAdd)
+db.session.commit()
+
+# Initialize the user loader
+@login_manager.user_loader
+def user_loader(user_id):
+    return userCreds.query.get(user_id)
 
 
 class registerForm(Form):
-    uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=6, max=20)])
+    uname = StringField('Username', [validators.DataRequired(message="Enter Username"), validators.Length(min=5, max=20)])
     pword = PasswordField('Password', [validators.DataRequired(message="Enter Password"), validators.Length(min=6, max=20)])
     twofa = StringField('2FA', [validators.DataRequired(message="Enter a 11 digit phone number"), validators.Length(min=11, max=11, message="Please enter phone number with your area code.")], id='2fa')
 
@@ -49,11 +89,18 @@ class spellForm(Form):
     textbox = TextAreaField('textbox', [validators.DataRequired(message="Enter Words to Check"), validators.Length(max=50000)], id='inputtext')
 
 
+class userCheckForm(Form):
+    textbox = TextAreaField('textbox', [validators.DataRequired(message="Enter User To Check Audit History"),validators.Length(max=20)], id='inputtext')
+
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if session.get('bool_log') and request.method == 'POST' and request.form['button_click'] == 'Logout': # Clicked logout button
         message = 'Logged Out'
         session.pop('bool_log', None)  # log out of session
+        userLogOutToAdd = userHistory(userAction='LoggedOut', uname=current_user.uname, userLoggedOut=datetime.now())
+        db.session.add(userLogOutToAdd)
+        db.session.commit()
         return render_template('home.html', message=message)
 
     elif session.get('bool_log') and request.method == 'GET':
@@ -74,7 +121,7 @@ def register():
         twofa = form.twofa.data
         if userCreds.query.filter_by(uname=('%s' % uname)).first() is None:
             message = "success"
-            db.session.add(userCreds(uname=uname, pword=h_pword, twofa=twofa))
+            db.session.add(userCreds(uname=uname, pword=h_pword, twofa=twofa, reg_time=datetime.now(), level='user'))
             db.session.commit()
             return render_template('register.html', form=form, message=message)
         else:
@@ -101,10 +148,13 @@ def login():
         else:
             if uname == userlogin.uname and bcrypt.check_password_hash(userlogin.pword, pword) and twofa == userlogin.twofa:
                 session['bool_log'] = True
+                login_user(userlogin)
                 message = "success"
+                userLoginToAdd = userHistory(userAction='LoggedIn', uname=uname,userLoggedIn=datetime.now())
+                db.session.add(userLoginToAdd)
                 return render_template('login.html', form=form, message=message)
             else:
-                if bcrypt.check_password_hash(userlogin.pword, pword) == False:
+                if bcrypt.check_password_hash(userlogin.pword, pword) is False:
                     message = 'Incorrect'
                     return render_template('login.html', form=form, message=message)
                 if twofa != userlogin.twofa:
@@ -114,7 +164,7 @@ def login():
     if request.method == 'POST' and form.validate() and session.get('bool_log'):
         message = 'Already logged in'
         return render_template('login.html', form=form, message=message)
-    else:  # request.method == GET
+    else:
         message = ''
         return render_template('login.html', form=form, message=message)
 
@@ -139,6 +189,9 @@ def spellcheck():
             output = popen.stdout.read()
             output = output.decode().replace("\n", ",")
             popen.terminate()
+            userSpellHistoryToAdd = userSpellHistory(uname=current_user.uname, queryText=data, queryResults=output)
+            db.session.add(userSpellHistoryToAdd)
+            db.session.commit()
             message = "success"
         except subprocess.CalledProcessError as e:
             print("Error:", e)
@@ -150,6 +203,74 @@ def spellcheck():
     else:
         message = 'Extraneous Error'
         return render_template('spellcheck.html', form=form, message=message)
+
+
+@app.route('/history', methods=['GET', 'POST'])
+def history():
+    form = spellForm(request.form)
+    if session.get('bool_log') and request.method == 'POST':
+        try:
+            userQuery = form.textbox.data
+            print(userQuery)
+            dbUserCheck = userCreds.query.filter_by(uname=('%s' % current_user.uname)).first()
+            if dbUserCheck.level == 'admin':
+                try:
+                    numqueries = userSpellHistory.query.filter_by(uname=('%s' % userQuery)).order_by(userSpellHistory.queryID.desc()).first()
+                    allqueries = userSpellHistory.query.filter_by(uname=('%s' % userQuery)).all()
+                    queriesCount = numqueries.queryID
+                except AttributeError:
+                    queriesCount = 0
+                    allqueries = ''
+                return render_template('history.html', numqueries=queriesCount, allqueries=allqueries, form=form)
+        except AttributeError:
+            return render_template('unauthorized.html')
+    if session.get('bool_log') and request.method =='GET':
+        try:
+            numqueries = userSpellHistory.query.filter_by(uname=('%s' % current_user.uname)).order_by(userSpellHistory.queryID.desc()).first()
+            allqueries = userSpellHistory.query.filter_by(uname=('%s' % current_user.uname)).all()
+            queriesCount = numqueries.queryID
+        except AttributeError:
+            queriesCount = 0
+            allqueries = ''
+        return render_template('history.html', numqueries=queriesCount,allqueries=allqueries,form=form)
+    else:
+        return render_template('unauthorized.html')
+
+
+@app.route("/history/<query>")
+def queryPage(query):
+    if request.method == 'GET':
+        try:
+            query = query.replace('query','')
+            history = userSpellHistory.query.filter_by(queryID=('%s' % query)).first()
+            queryID = history.queryID
+            uname = history.uname
+            submitText = history.queryText
+            returnedText = history.queryResults
+        except AttributeError:
+            return render_template('unauthorized.html')
+        return render_template('queryIDresults.html', queryID=queryID, uname=uname,submitText=submitText,results=returnedText)
+
+
+@app.route('/login_history', methods=['GET', 'POST'])
+def login_history():
+    form = userCheckForm(request.form)
+    dbUserCheck = userCreds.query.filter_by(uname=('%s' % current_user.uname)).first()
+    if session.get('bool_log') and request.method == 'GET' and dbUserCheck.level == 'admin':
+        # print("GET")
+        message = 'Authenticated User'
+        return render_template('login_history.html', form=form, message=message)
+
+    if session.get('bool_log') and request.method == 'POST' and request.form['submit_button'] == 'Check User Login History':
+        if dbUserCheck.level == 'admin':
+            # print("POST")
+            userToQuery = (form.textbox.data)
+            queryResults = userHistory.query.filter_by(uname=('%s' % userToQuery)).all()
+            return render_template('login_history_results.html', misspelled=queryResults)
+            # return render_template('unauthorized.html')
+    else:
+        message = 'Unauthorized: Admin Status Required'
+        return render_template('unauthorized.html', form=form, message=message)
 
 
 if __name__ == '__main__':

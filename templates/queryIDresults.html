@@ -1,0 +1,43 @@
+{#<p>Spell Checker Results</p>#}
+{#<a href="http://localhost:5000/">HOME</a>#}
+{#<a href="http://localhost:5000/login">LOGIN</a> #}
+{#<a href="http://localhost:5000/spell_check">SPELL_CHECK</a>#}
+{#<a href="http://localhost:5000/register">REGISTER</a>#}
+{#<a href="http://localhost:5000/history">USER QUERY HISTORY</a>#}
+{#<a href="http://localhost:5000/login_history">USER LOGIN HISTORY</a>#}
+{#<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>#}
+{#<p> Query ID: <div id=queryid>{{ queryID }} </p>#}
+{#<p> Username: <div id=username>{{username }} </p>#}
+{#<p> Requested Text: <div id=querytext>{{ submitText }} </p>#}
+{#<p> Returned Text : <div id=queryresults>{{ results }} </p>#}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+</html>
+
+<div class="jumbotron text-center">
+  <div align="center">
+    <strong>
+    <a href="http://localhost:5000/">HOME</a>
+<a href="http://localhost:5000/register">REGISTER</a>
+<a href="http://localhost:5000/login">LOGIN</a>
+<a href="http://localhost:5000/spell_check">SPELL CHECK</a>
+        <a href="http://localhost:5000/history"><font color="red">USER QUERY HISTORY</font></a>
+<a href="http://localhost:5000/login_history">USER LOGIN HISTORY</a>
+        </strong>
+    </div>
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+<p> Query ID: <div id=queryid>{{ queryID }} </p>
+<p> Username: <div id=username>{{ username }} </p>
+<p> Requested Text: <div id=querytext>{{ submitText }} </p>
+<p> Returned Text : <div id=queryresults>{{ results }} </p>
+</div>
+</div>

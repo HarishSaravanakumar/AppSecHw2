@@ -1,0 +1,15 @@
+{% from "_formhelpers.html" import render_field %}
+<a href="http://localhost:5000/">HOME</a>
+<a href="http://localhost:5000/login">LOGIN</a> 
+<a href="http://localhost:5000/spell_check">SPELL_CHECK</a>
+<a href="http://localhost:5000/register">REGISTER</a>
+<a href="http://localhost:5000/history">USER QUERY HISTORY</a>
+<a href="http://localhost:5000/login_history">USER LOGIN HISTORY</a>
+<form method=post action="">
+  <dl>
+    {{ form.textbox }}
+      <div id=userid>{{message}}</div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+  </dl>
+  <p><input type=submit name='submit_button' value='Check User Login History'>
+</form>
