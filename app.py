@@ -67,16 +67,9 @@ class userSpellHistory(db.Model):
 
 db.drop_all()
 db.create_all()
-#
-# Add in the Administrator User
 adminToAdd = userCreds(uname='admin', pword=bcrypt.generate_password_hash('Administrator@1').decode('utf-8'), twofa='12345678901', level='admin')
 db.session.add(adminToAdd)
 db.session.commit()
-
-# Initialize the user loader
-@login_manager.user_loader
-def user_loader(user_id):
-    return userCreds.query.get(user_id)
 
 
 class registerForm(Form):
@@ -91,6 +84,11 @@ class spellForm(Form):
 
 class userCheckForm(Form):
     textbox = TextAreaField('textbox', [validators.DataRequired(message="Enter User To Check"),validators.Length(max=20)], id='inputtext')
+
+
+@login_manager.user_loader
+def user_loader(user_id):
+    return userCreds.query.get(user_id)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -212,8 +210,8 @@ def history():
         try:
             userQuery = form.textbox.data
             print(userQuery)
-            dbUserCheck = userCreds.query.filter_by(uname=('%s' % current_user.uname)).first()
-            if dbUserCheck.level == 'admin':
+            currentUser = userCreds.query.filter_by(uname=('%s' % current_user.uname)).first()
+            if currentUser.level == 'admin':
                 try:
                     numqueries = userSpellHistory.query.filter_by(uname=('%s' % userQuery)).order_by(userSpellHistory.queryID.desc()).first()
                     allqueries = userSpellHistory.query.filter_by(uname=('%s' % userQuery)).all()
@@ -255,13 +253,13 @@ def queryPage(query):
 @app.route('/login_history', methods=['GET', 'POST'])
 def login_history():
     form = userCheckForm(request.form)
-    dbUserCheck = userCreds.query.filter_by(uname=('%s' % current_user.uname)).first()
-    if session.get('bool_log') and request.method == 'GET' and dbUserCheck.level == 'admin':
+    currentUser = userCreds.query.filter_by(uname=('%s' % current_user.uname)).first()
+    if session.get('bool_log') and request.method == 'GET' and currentUser.level == 'admin':
         message = 'Authenticated User'
         return render_template('login_history.html', form=form, message=message)
 
     if session.get('bool_log') and request.method == 'POST' and request.form['submit_button'] == 'Check User Login History':
-        if dbUserCheck.level == 'admin':
+        if currentUser.level == 'admin':
             userToQuery = (form.textbox.data)
             queryResults = userHistory.query.filter_by(uname=('%s' % userToQuery)).all()
             return render_template('login_history_results.html', misspelled=queryResults)
