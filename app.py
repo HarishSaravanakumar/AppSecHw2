@@ -247,7 +247,7 @@ def queryPage(query):
             returnedText = history.queryResults
         except AttributeError:
             return render_template('error.html')
-        return render_template('queryIDresults.html', queryID=queryID, uname=uname,submitText=submitText,results=returnedText)
+        return render_template('history_results.html', queryID=queryID, uname=uname, submitText=submitText, results=returnedText)
 
 
 @app.route('/login_history', methods=['GET', 'POST'])
