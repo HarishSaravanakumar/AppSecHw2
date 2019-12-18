@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: kubfinalflaskapp
-          image: finalflaskapp
+          image: harishsaravanakumar/finalflaskapp
           ports:
             - containerPort: 8080
           resources:
