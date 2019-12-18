@@ -1,0 +1,30 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: flask-app-tutorial
+  labels:
+    name: flask-app-tutorial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kubflaskapp
+  template:
+    metadata:
+      name: kubflaskapp
+      labels:
+        name: kubflaskapp
+    spec:
+      containers:
+        - name: kubfinalflaskapp
+          image: finalflaskapp
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+          env:
+            - name: DEBUG_MODE
+              value: "1"
