@@ -1,9 +1,9 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: flask-app-tutorial
+  name: kubfinalflaskapp
   labels:
-    name: flask-app-tutorial
+    name: kubfinalflaskapp
 spec:
   replicas: 1
   selector:
