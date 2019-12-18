@@ -15,5 +15,5 @@ EXPOSE 5000
 
 RUN pip3 install -r /app/requirements.txt
 RUN rm -rf /tmp
-CMD ["flask", "run", "-h", "0.0.0.0", "-p", "8080"]
+CMD ["flask", "run", "-h", "0.0.0.0", "-p", "8080"]do
 
